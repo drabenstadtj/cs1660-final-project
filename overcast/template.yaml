@@ -15,8 +15,13 @@ Globals:
         POSTS_TABLE: !Ref PostsTable
         USERS_TABLE: !Ref UsersTable
   Api:
+    Cors:
+      AllowMethods: "'GET,POST,OPTIONS'"
+      AllowHeaders: "'Content-Type,Authorization'"
+      AllowOrigin: "'*'"
     Auth:
       DefaultAuthorizer: CognitoAuthorizer
+      AddDefaultAuthorizerToCorsPreflight: false
       Authorizers:
         CognitoAuthorizer: # set the authorizer to our UserPool resource
           UserPoolArn: !GetAtt UserPool.Arn

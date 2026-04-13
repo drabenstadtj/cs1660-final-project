@@ -11,7 +11,11 @@ const POSTS_TABLE = process.env.POSTS_TABLE;
 // helper to build a response 
 const response = (statusCode, body) => ({
   statusCode,
-  headers: { 'Content-Type': 'application/json' },
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+  },
   body: JSON.stringify(body),
 });
 
