@@ -180,6 +180,11 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: overcast-media
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders:
@@ -189,6 +194,17 @@ Resources:
               - PUT
             AllowedOrigins:
               - '*'
+
+  MediaBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref MediaBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: s3:GetObject
+            Resource: !Sub '${MediaBucket.Arn}/*'
 
   # CloudFront distribution for frontend
   FrontendDistribution:
