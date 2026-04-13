@@ -14,6 +14,12 @@ Globals:
         # Pass table names into every Lambda as environment variables
         POSTS_TABLE: !Ref PostsTable
         USERS_TABLE: !Ref UsersTable
+  Api:
+    Auth:
+      DefaultAuthorizer: CognitoAuthorizer
+      Authorizers:
+        CognitoAuthorizer: # set the authorizer to our UserPool resource
+          UserPoolArn: !GetAtt UserPool.Arn
 
 Resources:
 
@@ -57,6 +63,8 @@ Resources:
           Properties:
             Path: /posts
             Method: get       # GET /posts -> this Lambda
+            Auth:
+              Authorizer: NONE  # make this not require auth
 
   CreatePostFunction:
     Type: AWS::Serverless::Function
@@ -72,8 +80,37 @@ Resources:
           Properties:
             Path: /posts
             Method: post        # POST /posts -> this Lambda
+    
+    # Cognito
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+      AutoVerifiedAttributes:
+        - email
+    
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: overcast-web-client
+      UserPoolId: !Ref UserPool
 
 Outputs:
   ApiUrl:
     Description: API Gateway endpoint URL
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/"
+
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref UserPool
+
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref UserPoolClient

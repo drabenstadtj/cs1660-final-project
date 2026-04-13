@@ -30,3 +30,8 @@ Overcast is a fully serverless application. The frontend is a React SPA hosted o
 6. **User receives a comment** → Lambda sends an email notification via SES directly to the post author
 7. **A Lambda function fails** → The failed invocation is forwarded to an SNS topic, which alerts the developer
 8. **Any Lambda invocation** → Logs and metrics are automatically sent to CloudWatch
+
+
+UserPoolId: us-east-1_U0jZAbaIu
+UserPoolClientId: 34pmvvbfne5t17n6k5e57b9ffa
+ApiUrl: https://jvjkzd3e00.execute-api.us-east-1.amazonaws.com/Prod/
