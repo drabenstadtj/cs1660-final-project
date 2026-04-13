@@ -80,22 +80,45 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
-      Handler: posts.createPost # calls createPost() exported from src/posts.js
+      Handler: posts.createPost
       Policies:
-        - DynamoDBWritePolicy:  # grants this Lambda write access to the posts table
+        - DynamoDBWritePolicy:
             TableName: !Ref PostsTable
       Events:
         CreatePost:
           Type: Api
           Properties:
             Path: /posts
-            Method: post        # POST /posts -> this Lambda
+            Method: post
       EventInvokeConfig:
         DestinationConfig:
           OnFailure:
             Type: SNS
             Destination: !GetAtt LambdaFailureAlertTopic.TopicArn
-    
+
+  GetUploadUrlFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: posts.getUploadUrl
+      Environment:
+        Variables:
+          MEDIA_BUCKET: !Ref MediaBucket
+      Policies:
+        - S3WritePolicy:
+            BucketName: !Ref MediaBucket
+      Events:
+        GetUploadUrl:
+          Type: Api
+          Properties:
+            Path: /upload-url
+            Method: get        # GET /upload-url?filename=x&contentType=y
+      EventInvokeConfig:
+        DestinationConfig:
+          OnFailure:
+            Type: SNS
+            Destination: !GetAtt LambdaFailureAlertTopic.TopicArn
+
     # Cognito
 
   UserPool:
