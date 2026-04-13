@@ -1,0 +1,133 @@
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionBar {
+  background: var(--bar-bg);
+  color: var(--bar-text);
+  padding: 6px 12px;
+  font: 600 13px var(--sans);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 2px solid var(--border);
+  border-bottom: none;
+}
+
+.newPost {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.newPost input,
+.newPost textarea {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  background: var(--row-even);
+  color: var(--text-h);
+  font: 14px var(--sans);
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.newPost textarea {
+  min-height: 90px;
+}
+
+.newPost input:focus,
+.newPost textarea:focus {
+  outline: 2px solid var(--accent-border);
+}
+
+.newPost button {
+  align-self: flex-start;
+  padding: 5px 16px;
+  border: 1px solid var(--highlight);
+  background: var(--highlight);
+  color: var(--highlight-text);
+  font: 600 13px var(--sans);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.newPost button:hover {
+  opacity: 0.85;
+}
+
+/* Thread table */
+.threadTable {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid var(--border);
+  background: var(--panel);
+  font-size: 14px;
+}
+
+.threadTable thead tr {
+  background: var(--bar-bg);
+  color: var(--bar-text);
+}
+
+.threadTable thead th {
+  padding: 6px 12px;
+  text-align: left;
+  font: 600 12px var(--sans);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  border-right: 1px solid rgba(255,255,255,0.15);
+}
+
+.threadTable thead th:last-child {
+  border-right: none;
+}
+
+.threadTable tbody tr:nth-child(even) {
+  background: var(--row-odd);
+}
+
+.threadTable tbody tr:nth-child(odd) {
+  background: var(--row-even);
+}
+
+.threadTable tbody tr:hover {
+  background: var(--accent-bg);
+}
+
+.threadTable td {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.threadTable td:last-child {
+  border-right: none;
+}
+
+.threadTitle {
+  font-weight: 600;
+  color: var(--text-h);
+  font-size: 14px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.threadBody {
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.colAuthor,
+.colDate {
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--text);
+  width: 110px;
+}
