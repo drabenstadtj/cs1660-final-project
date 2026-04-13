@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Overcast - serverless blogging platform
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: nodejs22.x
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        # Pass table names into every Lambda as environment variables
+        POSTS_TABLE: !Ref PostsTable
+        USERS_TABLE: !Ref UsersTable
+
+Resources:
+
+  # DynamoDB
+  PostsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: overcast-posts
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: postId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: postId
+          KeyType: HASH
+
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: overcast-users
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+
+  # Lambda Functions
+  GetPostsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: posts.getPosts # calls getPosts() exported from src/posts.js
+      Policies:
+        - DynamoDBReadPolicy: # grants this Lambda read-only access to the posts table
+            TableName: !Ref PostsTable
+      Events:
+        GetPosts:
+          Type: Api
+          Properties:
+            Path: /posts
+            Method: get       # GET /posts -> this Lambda
+
+  CreatePostFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: posts.createPost # calls createPost() exported from src/posts.js
+      Policies:
+        - DynamoDBWritePolicy:  # grants this Lambda write access to the posts table
+            TableName: !Ref PostsTable
+      Events:
+        CreatePost:
+          Type: Api
+          Properties:
+            Path: /posts
+            Method: post        # POST /posts -> this Lambda
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/"
