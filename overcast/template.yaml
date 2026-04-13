@@ -70,6 +70,11 @@ Resources:
             Method: get       # GET /posts -> this Lambda
             Auth:
               Authorizer: NONE  # make this not require auth
+      EventInvokeConfig:
+        DestinationConfig:
+          OnFailure:
+            Type: SNS
+            Destination: !GetAtt LambdaFailureAlertTopic.TopicArn
 
   CreatePostFunction:
     Type: AWS::Serverless::Function
@@ -85,6 +90,11 @@ Resources:
           Properties:
             Path: /posts
             Method: post        # POST /posts -> this Lambda
+      EventInvokeConfig:
+        DestinationConfig:
+          OnFailure:
+            Type: SNS
+            Destination: !GetAtt LambdaFailureAlertTopic.TopicArn
     
     # Cognito
 
@@ -107,6 +117,81 @@ Resources:
       ClientName: overcast-web-client
       UserPoolId: !Ref UserPool
 
+  # SNS topic for Lambda failure alerts
+  LambdaFailureAlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: overcast-lambda-failures
+      Subscription:
+        - Protocol: email
+          Endpoint: jackdrabenstadt@gmail.com
+  
+  # S3 bucket for frontend hosting
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: overcast-frontend
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+
+  # S3 bucket policy to allow public read
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: s3:GetObject
+            Resource: !Sub '${FrontendBucket.Arn}/*'
+
+  # S3 bucket for media uploads
+  MediaBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: overcast-media
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+            AllowedOrigins:
+              - '*'
+
+  # CloudFront distribution for frontend
+  FrontendDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        DefaultCacheBehavior:
+          ViewerProtocolPolicy: redirect-to-https
+          TargetOriginId: FrontendBucketOrigin
+          ForwardedValues:
+            QueryString: false
+        DefaultRootObject: index.html
+        Enabled: true
+        Origins:
+          - Id: FrontendBucketOrigin
+            DomainName: !Select [1, !Split ['://', !GetAtt FrontendBucket.WebsiteURL]]
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+
 Outputs:
   ApiUrl:
     Description: API Gateway endpoint URL
@@ -119,3 +204,7 @@ Outputs:
   UserPoolClientId:
     Description: Cognito User Pool Client ID
     Value: !Ref UserPoolClient
+  
+  FrontendURL:
+    Description: CloudFront URL for frontend
+    Value: !GetAtt FrontendDistribution.DomainName
