@@ -1,8 +1,12 @@
-const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, ScanCommand, PutCommand } = require('@aws-sdk/lib-dynamodb');
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-const { randomUUID } = require('crypto');
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const {
+    DynamoDBDocumentClient,
+    ScanCommand,
+    PutCommand,
+} = require("@aws-sdk/lib-dynamodb");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { randomUUID } = require("crypto");
 
 const client = new DynamoDBClient({});
 const dynamo = DynamoDBDocumentClient.from(client);
@@ -13,74 +17,79 @@ const USERS_TABLE = process.env.USERS_TABLE;
 const MEDIA_BUCKET = process.env.MEDIA_BUCKET;
 
 const response = (statusCode, body) => ({
-  statusCode,
-  headers: {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-  },
-  body: JSON.stringify(body),
+    statusCode,
+    headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+    },
+    body: JSON.stringify(body),
 });
 
 // GET /posts - fetch all posts
 exports.getPosts = async (event) => {
-  const result = await dynamo.send(new ScanCommand({ TableName: POSTS_TABLE }));
-  return response(200, result.Items);
+    throw new Error("test failure");
+    const result = await dynamo.send(
+        new ScanCommand({ TableName: POSTS_TABLE }),
+    );
+    return response(200, result.Items);
 };
 
 // POST /posts - create a new post
 exports.createPost = async (event) => {
-  const body = JSON.parse(event.body);
+    const body = JSON.parse(event.body);
 
-  const post = {
-    postId: randomUUID(),
-    title: body.title,
-    content: body.content,
-    author: body.author,
-    createdAt: new Date().toISOString(),
-    ...(body.imageUrl && { imageUrl: body.imageUrl }),
-  };
+    const post = {
+        postId: randomUUID(),
+        title: body.title,
+        content: body.content,
+        author: body.author,
+        createdAt: new Date().toISOString(),
+        ...(body.imageUrl && { imageUrl: body.imageUrl }),
+    };
 
-  await dynamo.send(new PutCommand({ TableName: POSTS_TABLE, Item: post }));
-  return response(201, post);
+    await dynamo.send(new PutCommand({ TableName: POSTS_TABLE, Item: post }));
+    return response(201, post);
 };
 
 // POST /users - save a user profile after Cognito confirmation
 exports.createUser = async (event) => {
-  const body = JSON.parse(event.body);
-  const { username, email } = body;
+    const body = JSON.parse(event.body);
+    const { username, email } = body;
 
-  if (!username || !email) {
-    return response(400, { error: 'username and email are required' });
-  }
+    if (!username || !email) {
+        return response(400, { error: "username and email are required" });
+    }
 
-  const user = {
-    userId: username,
-    username,
-    email,
-    createdAt: new Date().toISOString(),
-  };
+    const user = {
+        userId: username,
+        username,
+        email,
+        createdAt: new Date().toISOString(),
+    };
 
-  await dynamo.send(new PutCommand({ TableName: USERS_TABLE, Item: user }));
-  return response(201, user);
+    await dynamo.send(new PutCommand({ TableName: USERS_TABLE, Item: user }));
+    return response(201, user);
 };
 
 // GET /upload-url?filename=x&contentType=y - return a presigned S3 PUT URL
 exports.getUploadUrl = async (event) => {
-  const { filename, contentType } = event.queryStringParameters || {};
-  if (!filename || !contentType) {
-    return response(400, { error: 'filename and contentType are required' });
-  }
+    const { filename, contentType } = event.queryStringParameters || {};
+    if (!filename || !contentType) {
+        return response(400, {
+            error: "filename and contentType are required",
+        });
+    }
 
-  const key = `uploads/${randomUUID()}-${filename}`;
-  const command = new PutObjectCommand({
-    Bucket: MEDIA_BUCKET,
-    Key: key,
-    ContentType: contentType,
-  });
+    const key = `uploads/${randomUUID()}-${filename}`;
+    const command = new PutObjectCommand({
+        Bucket: MEDIA_BUCKET,
+        Key: key,
+        ContentType: contentType,
+    });
 
-  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
-  const imageUrl = `https://${MEDIA_BUCKET}.s3.amazonaws.com/${key}`;
+    const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
+    const imageUrl = `https://${MEDIA_BUCKET}.s3.amazonaws.com/${key}`;
 
-  return response(200, { uploadUrl, imageUrl });
+    return response(200, { uploadUrl, imageUrl });
 };
