@@ -9,6 +9,7 @@ const dynamo = DynamoDBDocumentClient.from(client);
 const s3 = new S3Client({});
 
 const POSTS_TABLE = process.env.POSTS_TABLE;
+const USERS_TABLE = process.env.USERS_TABLE;
 const MEDIA_BUCKET = process.env.MEDIA_BUCKET;
 
 const response = (statusCode, body) => ({
@@ -42,6 +43,26 @@ exports.createPost = async (event) => {
 
   await dynamo.send(new PutCommand({ TableName: POSTS_TABLE, Item: post }));
   return response(201, post);
+};
+
+// POST /users - save a user profile after Cognito confirmation
+exports.createUser = async (event) => {
+  const body = JSON.parse(event.body);
+  const { username, email } = body;
+
+  if (!username || !email) {
+    return response(400, { error: 'username and email are required' });
+  }
+
+  const user = {
+    userId: username,
+    username,
+    email,
+    createdAt: new Date().toISOString(),
+  };
+
+  await dynamo.send(new PutCommand({ TableName: USERS_TABLE, Item: user }));
+  return response(201, user);
 };
 
 // GET /upload-url?filename=x&contentType=y - return a presigned S3 PUT URL

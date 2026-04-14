@@ -96,6 +96,28 @@ Resources:
             Type: SNS
             Destination: !GetAtt LambdaFailureAlertTopic.TopicArn
 
+  CreateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: posts.createUser
+      Policies:
+        - DynamoDBWritePolicy:
+            TableName: !Ref UsersTable
+      Events:
+        CreateUser:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: post
+            Auth:
+              Authorizer: NONE  # called before the user is logged in
+      EventInvokeConfig:
+        DestinationConfig:
+          OnFailure:
+            Type: SNS
+            Destination: !GetAtt LambdaFailureAlertTopic.TopicArn
+
   GetUploadUrlFunction:
     Type: AWS::Serverless::Function
     Properties:
