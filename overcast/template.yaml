@@ -208,28 +208,34 @@ Resources:
 
   # CloudFront distribution for frontend
   FrontendDistribution:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig:
-        DefaultCacheBehavior:
-          ViewerProtocolPolicy: redirect-to-https
-          TargetOriginId: FrontendBucketOrigin
-          ForwardedValues:
-            QueryString: false
-        DefaultRootObject: index.html
-        Enabled: true
-        Origins:
-          - Id: FrontendBucketOrigin
-            DomainName: !Select [1, !Split ['://', !GetAtt FrontendBucket.WebsiteURL]]
-            CustomOriginConfig:
-              OriginProtocolPolicy: http-only
-        CustomErrorResponses:
-          - ErrorCode: 403
-            ResponseCode: 200
-            ResponsePagePath: /index.html
-          - ErrorCode: 404
-            ResponseCode: 200
-            ResponsePagePath: /index.html
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Aliases:
+            - overcast.jackdrab.dev
+          ViewerCertificate:
+            AcmCertificateArn: arn:aws:acm:us-east-1:631195140156:certificate/e1efdce6-cf96-4fa2-a95f-08dc33879221
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2021
+          DefaultCacheBehavior:
+            ViewerProtocolPolicy: redirect-to-https
+            TargetOriginId: FrontendBucketOrigin
+            ForwardedValues:
+              QueryString: false
+          DefaultRootObject: index.html
+          Enabled: true
+          Origins:
+            - Id: FrontendBucketOrigin
+              DomainName: !Select [1, !Split ['://', !GetAtt FrontendBucket.WebsiteURL]]
+              CustomOriginConfig:
+                OriginProtocolPolicy: http-only
+          CustomErrorResponses:
+            - ErrorCode: 403
+              ResponseCode: 200
+              ResponsePagePath: /index.html
+            - ErrorCode: 404
+              ResponseCode: 200
+              ResponsePagePath: /index.html
 
 Outputs:
   ApiUrl:
