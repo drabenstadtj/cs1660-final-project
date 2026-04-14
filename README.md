@@ -81,5 +81,5 @@ Pushes to `main` automatically deploy the full stack via GitHub Actions with no 
 - WSL and Windows npm conflict. The project was in the wrong directory so SAM was picking up the Windows version of npm instead of the Linux one. Fixed by moving the project into the WSL filesystem.
 - Cognito requires email verification before you can log in, which I hadn't handled in the frontend initially. Had to add a confirmation code step to the signup flow.
 - The custom domain kept breaking after deploys because I had added the certificate config manually in the AWS console and GitHub Actions would overwrite it. Fixed by adding it to the template so it's always included in deploys.
-- SNS failure alerts silently did nothing until I figured out I needed to add an explicit permission to each Lambda letting it publish to the SNS topic.
+- SNS failure destination on Lambda doesn't fire for synchronous invocations, which is how API Gateway calls Lambda. Switched to a CloudWatch alarm on the Lambda error metric that publishes to the SNS topic when errors are detected, which works regardless of how the function was invoked.
 - Originally planned to use SES for notifications but it requires verifying every recipient's email which isn't practical. Dropped it.

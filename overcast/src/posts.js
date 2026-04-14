@@ -28,7 +28,6 @@ const response = (statusCode, body) => ({
 
 // GET /posts - fetch all posts
 exports.getPosts = async (event) => {
-    throw new Error("test failure");
     const result = await dynamo.send(
         new ScanCommand({ TableName: POSTS_TABLE }),
     );

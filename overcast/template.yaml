@@ -275,6 +275,23 @@ Resources:
                     - ErrorCode: 404
                       ResponseCode: 200
                       ResponsePagePath: /index.html
+                      
+    # CloudWatch alarm for Lambda errors
+    LambdaErrorAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: overcast-lambda-errors
+        AlarmDescription: Fires when any Lambda function errors in a 5 minute window
+        Namespace: AWS/Lambda
+        MetricName: Errors
+        Statistic: Sum
+        Period: 300
+        EvaluationPeriods: 1
+        Threshold: 1
+        ComparisonOperator: GreaterThanOrEqualToThreshold
+        TreatMissingData: notBreaching
+        AlarmActions:
+          - !Ref LambdaFailureAlertTopic
 
 Outputs:
     ApiUrl:
