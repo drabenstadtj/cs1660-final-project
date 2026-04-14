@@ -22,11 +22,11 @@ export default function Signup({ onSignup }) {
     <div className={styles.form}>
       {step === 'signup' ? (
         <>
-          <div className={styles.formBar}>Register</div>
+          <div className={styles.formBar}>Sign up</div>
           <div className={styles.formBody}>
             <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
             <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
-            <button onClick={handleSignup}>Register</button>
+            <button onClick={handleSignup}>Sign up</button>
           </div>
         </>
       ) : (

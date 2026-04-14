@@ -1,53 +1,47 @@
 .form {
-    display: flex;
-    flex-direction: column;
-    max-width: 380px;
-    border: 2px solid var(--border);
-    background: var(--panel);
-    margin: auto;
+  border: 2px solid var(--border);
+  max-width: 380px;
+  background: var(--panel);
 }
 
 .formBar {
-    background: var(--bar-bg);
-    color: var(--bar-text);
-    padding: 8px 14px;
-    font: 600 13px var(--sans);
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+  background: var(--bar-bg);
+  color: var(--bar-text);
+  font: bold 11px Verdana, sans-serif;
+  padding: 5px 8px;
+  letter-spacing: 0.3px;
 }
 
 .formBody {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 16px 14px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .formBody input {
-    width: 100%;
-    padding: 6px 10px;
-    border: 1px solid var(--border);
-    background: var(--row-even);
-    color: var(--text-h);
-    font: 14px var(--sans);
-    box-sizing: border-box;
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  font: 12px Verdana, sans-serif;
+  color: var(--text-h);
+  box-sizing: border-box;
 }
 
 .formBody input:focus {
-    outline: 2px solid var(--accent-border);
+  outline: 1px solid var(--accent);
 }
 
 .formBody button {
-    align-self: flex-start;
-    padding: 5px 16px;
-    border: 1px solid var(--highlight);
-    background: var(--highlight);
-    color: var(--highlight-text);
-    font: 600 13px var(--sans);
-    cursor: pointer;
-    transition: opacity 0.15s;
+  align-self: flex-start;
+  padding: 4px 18px;
+  background: var(--highlight);
+  color: var(--highlight-text);
+  border: 1px solid var(--accent);
+  font: bold 11px Verdana, sans-serif;
+  cursor: pointer;
 }
 
 .formBody button:hover {
-    opacity: 0.85;
+  opacity: 0.85;
 }

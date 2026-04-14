@@ -1,46 +1,58 @@
-.nav {
-  background: var(--header-bg);
-  border: 2px solid var(--border);
-  margin-bottom: 12px;
+.header {
+  margin-bottom: 6px;
 }
 
+/* Site banner */
 .banner {
+  background: var(--header-bg);
+  padding: 14px 12px 12px;
+  border: 2px solid var(--border);
+  border-bottom: none;
+}
+
+.logo {
+  max-height: 90px;
+  width: auto;
+  display: block;
+}
+
+/* Navigation strip */
+.navStrip {
+  background: var(--bar-bg);
+  border: 2px solid var(--border);
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
-}
-
-.title {
-  margin: 0;
-  font-size: 26px;
-  letter-spacing: 1px;
-  color: var(--header-text);
-}
-
-.actions {
-  display: flex;
-  gap: 6px;
   align-items: center;
+  padding: 4px 8px;
 }
 
-.actions button {
-  padding: 5px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--header-text);
-  font: 13px var(--sans);
+.navLinks,
+.navUser {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--bar-text);
+}
+
+.navStrip button {
+  background: none;
+  border: none;
+  color: var(--highlight);
+  font: bold 11px Verdana, sans-serif;
   cursor: pointer;
-  transition: background 0.15s;
+  padding: 1px 3px;
 }
 
-.actions button:hover {
-  background: rgba(255, 255, 255, 0.22);
+.navStrip button:hover {
+  text-decoration: underline;
 }
 
-.username {
-  font-size: 12px;
-  color: rgba(232, 228, 255, 0.7);
-  padding: 5px 10px;
-  border-left: 1px solid rgba(255, 255, 255, 0.2);
+.navUser strong {
+  color: var(--highlight);
+}
+
+.sep {
+  color: rgba(255,255,255,0.4);
+  font-size: 10px;
 }
