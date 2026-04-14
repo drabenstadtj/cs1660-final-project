@@ -45,3 +45,20 @@
 .formBody button:hover {
   opacity: 0.85;
 }
+
+.formBody button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #b94a48;
+  font: 11px Verdana, sans-serif;
+  margin: 0;
+  padding: 2px 0;
+}
+
+.inputError {
+  border-color: #b94a48 !important;
+  outline: 1px solid #b94a48 !important;
+}
