@@ -30,16 +30,17 @@ Deployments are fully automated via GitHub Actions. On every push to main, the w
 
 ## AWS Services
 
-| Service | Role | Why this over alternatives? |
-|---|---|---|
-| CloudFront | CDN - serves the frontend globally over HTTPS | S3 alone doesn't support HTTPS on custom domains, and CloudFront caches content at edge locations so load times are faster |
-| S3 | Frontend hosting and image storage | No server needed for static files. For images, presigned URLs let the browser upload directly to S3 without going through Lambda |
-| Cognito | User signup, login, and session management | Handles password hashing, email verification, and JWT issuance without building any of it. Integrates directly with API Gateway |
-| API Gateway | REST API entry point | Validates JWTs automatically before requests reach Lambda. No server to manage compared to running an Express app on EC2 |
-| Lambda | Backend logic for posts and image uploads | Lambda was chosen over EC2 because traffic is unpredictable and infrequent - Lambda only runs when a request comes in so I'm not paying for idle time |
-| DynamoDB | Stores posts and user data | Blog posts are self-contained documents that don't need joins, so a NoSQL database fits better than RDS. Also has a generous free tier |
-| SNS | Alerts when a Lambda function fails | SNS was configured as a Lambda failure destination so failures trigger an email automatically when something crashes instead of having to check logs manually |
-| CloudWatch | Logs and metrics | Automatically collects logs from every Lambda invocation with no setup required |
+| Service     | Role                                          | Why this over alternatives?                                                                                                                                   |
+| ----------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CloudFront  | CDN - serves the frontend globally over HTTPS | S3 alone doesn't support HTTPS on custom domains, and CloudFront caches content at edge locations so load times are faster                                    |
+| S3          | Frontend hosting and image storage            | No server needed for static files. For images, presigned URLs let the browser upload directly to S3 without going through Lambda                              |
+| Cognito     | User signup, login, and session management    | Handles password hashing, email verification, and JWT issuance without building any of it. Integrates directly with API Gateway                               |
+| API Gateway | REST API entry point                          | Validates JWTs automatically before requests reach Lambda. No server to manage compared to running an Express app on EC2                                      |
+| Lambda      | Backend logic for posts and image uploads     | Lambda was chosen over EC2 because traffic is unpredictable and infrequent - Lambda only runs when a request comes in so I'm not paying for idle time         |
+| DynamoDB    | Stores posts and user data                    | Blog posts are self-contained documents that don't need joins, so a NoSQL database fits better than RDS. Also has a generous free tier                        |
+| SNS         | Alerts when a Lambda function fails           | SNS was configured as a Lambda failure destination so failures trigger an email automatically when something crashes instead of having to check logs manually |
+| CloudWatch  | Logs and metrics                              | Automatically collects logs from every Lambda invocation with no setup required                                                                               |
+
 ---
 
 ## Data Flow
@@ -60,3 +61,25 @@ Deployments are fully automated via GitHub Actions. On every push to main, the w
 
 Pushes to `main` automatically deploy the full stack via GitHub Actions with no manual intervention required.
 
+---
+
+**Architecture Decisions**
+
+- Chose Lambda over EC2 because traffic is unpredictable and I didn't want to pay for a server sitting idle. A goal of the project was to let people run their own blog for as little time and money as possible.
+- Chose DynamoDB over RDS because posts are just documents, there's no real relationship between tables that would need a traditional database. Also has a permanent free tier.
+- Chose Cognito over building my own auth because it handles all the hard stuff out of the box and plugs straight into API Gateway. I've built auth from scratch before and it's easy to get wrong.
+- Used presigned S3 URLs for image uploads instead of sending files through Lambda. Lambda has a file size limit and this way the browser uploads directly to S3. Took some research to figure out.
+- Kept reading posts public and only locked down the write endpoints. You shouldn't need an account just to read a blog. Getting this to work in SAM required digging into the docs.
+- Used SAM over writing raw CloudFormation because it's much less verbose. I come from a Docker and Ansible background so writing infrastructure as code felt natural.
+- Deployed the frontend to S3 and CloudFront instead of Vercel to keep everything in AWS.
+
+---
+
+**Challenges**
+
+- CORS errors when making POST requests. API Gateway was blocking the preflight request browsers send before every POST. Fixed by adding one line to the SAM template.
+- WSL and Windows npm conflict. The project was in the wrong directory so SAM was picking up the Windows version of npm instead of the Linux one. Fixed by moving the project into the WSL filesystem.
+- Cognito requires email verification before you can log in, which I hadn't handled in the frontend initially. Had to add a confirmation code step to the signup flow.
+- The custom domain kept breaking after deploys because I had added the certificate config manually in the AWS console and GitHub Actions would overwrite it. Fixed by adding it to the template so it's always included in deploys.
+- SNS failure alerts silently did nothing until I figured out I needed to add an explicit permission to each Lambda letting it publish to the SNS topic.
+- Originally planned to use SES for notifications but it requires verifying every recipient's email which isn't practical. Dropped it.
