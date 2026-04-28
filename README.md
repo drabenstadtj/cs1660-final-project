@@ -3,7 +3,7 @@
 A serverless blogging platform built on AWS. Users can sign up, write posts, upload images, and read content from others.
 
 **Live:** [overcast.jackdrab.dev](https://overcast.jackdrab.dev)
-
+**Video Demo:** [Youtube](https://youtu.be/CknXGr-1p98)
 ---
 
 ## Architecture
